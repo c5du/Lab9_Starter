@@ -68,40 +68,133 @@
       </fieldset>
     </form>
 
+    <form id="formQ">
+      <fieldset>
+        <legend>Question:</legend>
+        <input name="question" id="question" />
+        <button id="submitQ">Submit</button>
+      </fieldset>
+    </form>
+
     <section id="error-btns">
-      <button>Console Log</button>
-      <button>Console Error</button>
-      <button>Console Count</button>
-      <button>Console Warn</button>
-      <button>Console Assert</button>
-      <button>Console Clear</button>
-      <button>Console Dir</button>
-      <button>Console dirxml</button>
-      <button>Console Group Start</button>
-      <button>Console Group End</button>
-      <button>Console Table</button>
-      <button>Start Timer</button>
-      <button>End Timer</button>
-      <button>Console Trace</button>
-      <button>Trigger a Global Error</button>
+      <button onclick="log()">Console Log</button>
+      <button onclick="error()">Console Error</button>
+      <button onclick="count()">Console Count</button>
+      <button onclick="warn()">Console Warn</button>
+      <button onclick="assert()">Console Assert</button>
+      <button onclick="console.clear()">Console Clear</button>
+      <button onclick="console.dir(this)">Console Dir</button>
+      <button onclick="console.dirxml(this)">Console dirxml</button>
+      <button onclick="console.group()">Console Group Start</button>
+      <button onclick="console.groupEnd()">Console Group End</button>
+      <button onclick="table()">Console Table</button>
+      <button onclick="sTimer()">Start Timer</button>
+      <button onclick="eTimer()">End Timer</button>
+      <button onclick="traceBtn()">Console Trace</button>
+      <button id="global" onclick="globalError()">Trigger a Global Error</button>
     </section>
   </main>
-
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "6fd3d690044e488e8bf55aafd0776760"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
+                          
+  <script>
+    TrackJS.track('Testing TrackJS!');
+                        
     let form = document.querySelector('form');
     form.addEventListener('submit', e => {
-      e.preventDefault();
-      let output = document.querySelector('output');
-      let firstNum = document.querySelector('#first-num').value;
-      let secondNum = document.querySelector('#second-num').value;
-      let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        e.preventDefault();
+        let output = document.querySelector('output');
+        let firstNum = document.querySelector('#first-num').value;
+        let secondNum = document.querySelector('#second-num').value;
+        let operator = document.querySelector('#operator').value;
+        if (!firstNum || !secondNum){
+          throw new Error("Missing value");
+        }
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      }catch (err) {
+        console.error(err);
+      }finally {
+        console.log("submitted");
+      }
     });
 
+    class ValidationError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "ValidationError";
+      }
+    }
+    let formQ = document.getElementById("formQ");
+    formQ.addEventListener('submit', e => {
+      try {
+        e.preventDefault();
+        let firstNum = document.querySelector('#question').value;
+        if (!(firstNum.slice(-1) === "?")){
+          throw new ValidationError("Missing question mark");
+        }
+        console.log("Thank you");
+      }catch (err) {
+        console.error(err);
+      }finally {
+        console.log("submitted");
+      }
+    });
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
-
     // Start your code here
     // You may move this JS to another file if you wish
+    function log(){
+      console.log("Console Log Demo");
+    }
+    function error() {
+      console.error("Console Error Demo");
+    }
+    function count(){
+      console.count("Count Button");
+    }
+    function warn() {
+      console.warn("Console Warn Button");
+    }
+    function assert() {
+      var number = 2;
+      const errorMsg = "The number does not equal 3";
+      console.assert(number == 3, "%o", {number, errorMsg});
+    }
+    function table() {
+      var Array = [110, 130, 112];
+      console.table(Array);
+    }
+    function sTimer() {
+      console.time("Timer Button");
+    }
+    function eTimer() {
+      console.timeEnd("Timer Button");
+    }
+    function traceBtn() {
+      function deep() {
+        function deeper() {
+          function deepest() {
+            console.trace();
+          }
+          deepest();
+        }
+        deeper();
+      }
+      deep();
+    }
+    window.onerror = function(a,b,c,d,e) {
+      console.log("sad");
+      console.error(e);
+      return true;
+    };
+    function globalError() {
+      throw new ReferenceError("boom is not defined");
+    }
   </script>
 </body>
 
